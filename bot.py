@@ -11,8 +11,6 @@ import math
 import ctypes
 import re
 import os
-# stuff for tweetbot
-import twitter
 import threading
 from time import sleep
 from config import *
@@ -35,40 +33,6 @@ loop = asyncio.get_event_loop()
 
 # var to remember if we are broadcasting
 cast = 0
-
-# tweet getter command
-def gettweet(who):
-	print("Twitter thread started for "+who)
-	# set an empty var for storing last id
-	lastid = 0
-	# main tweet loop
-	while True:
-		# wait 25 minutes
-		sleep(1500)
-		#sleep(20)
-		# alright, wake the fuck up and check twitter for tweets
-		tweet = api.GetUserTimeline(screen_name=who, count=1)
-		# convert what we found to a list
-		tlist = [i.AsDict() for i in tweet]
-		# parse the tweets
-		for i in tlist:
-			# check if we already tweeted this
-			if i['id'] == lastid:
-				break
-			else:
-				# form the tweets into a hecking discord message format
-				em = discord.Embed(color=0x481CF1, title="Link to tweet", url="https://twitter.com/"+who+"/status/"+str(i['id']))
-				em.set_author(name="New Tweet from "+who, icon_url=twatcon)
-				em.add_field(name="Tweet Contents:", value=i['text'])
-				em.set_footer(text="Twitter")
-				# store the id away dude
-				lastid = i['id']
-				# get the channel
-				dest = client.get_channel(str(tweetchan))
-				# send that shit NOW
-				die = asyncio.run_coroutine_threadsafe(client.send_message(dest, embed=em), loop)
-				nothing = die.result()
-
 
 # Gamecyle command
 def GameCycle():
@@ -188,15 +152,6 @@ async def on_message(message):
 
 
 
-# start up twitter threads
-print("Floatzel is now configuring Twitter threads...")
-ezio = threading.Thread(target=gettweet, args=(twat,), daemon=True)
-tarray.append(ezio)
-sm = threading.Thread(target=gettweet, args=(twattwo,), daemon=True)
-tarray.append(sm)
-print("Floatzel is now starting twitter threads...")
-ezio.start()
-sm.start()
 # start thread for changing games
 print("Floatzel is now configuring game changing thread...")
 gamestate = threading.Thread(target=GameCycle, daemon=True)
